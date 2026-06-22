@@ -13,6 +13,7 @@ export function profileSlug(name: string, tmdbPersonId: number): string {
   const base = name
     .toLowerCase()
     .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "") // drop combining accents so "é" → "e", not "e-"
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 60);
