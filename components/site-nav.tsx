@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Compass, Home, Search } from "lucide-react";
+import { Compass, Home, Newspaper, Search } from "lucide-react";
 import { auth } from "@/auth";
 import { buttonVariants } from "@/components/ui/button";
 
@@ -42,6 +42,10 @@ export async function SiteNav() {
           </Link>
           {signedIn ? (
             <>
+              <Link href="/feed" className={ghost}>
+                <Newspaper className="size-4" />
+                <span className="hidden md:inline">Feed</span>
+              </Link>
               <Link href="/me" className={ghost}>
                 Me
               </Link>

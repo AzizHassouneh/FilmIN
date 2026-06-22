@@ -6,6 +6,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { buttonVariants } from "@/components/ui/button";
 import { ClaimButton } from "@/components/claim-button";
+import { FollowButton } from "@/components/follow-button";
 
 type Links = { website?: string; reel?: string; instagram?: string };
 
@@ -17,16 +18,34 @@ export default async function ProfilePage({ params }: { params: Promise<{ slug: 
       where: { slug },
       include: {
         credits: { include: { title: true }, orderBy: [{ title: { year: "desc" } }] },
+        _count: { select: { followers: true } },
       },
     }),
   ]);
 
   if (!profile) notFound();
 
-  const isOwner = Boolean(session?.user?.id && profile.ownerUserId === session.user.id);
+  const userId = session?.user?.id;
+  const isOwner = Boolean(userId && profile.ownerUserId === userId);
   const claimed = Boolean(profile.ownerUserId);
-  const canClaim = Boolean(session?.user?.id) && !claimed;
+  const canClaim = Boolean(userId) && !claimed;
   const links = (profile.links ?? {}) as Links;
+
+  // Whether the signed-in user already follows this page (not on their own page).
+  const following =
+    userId && !isOwner
+      ? Boolean(
+          await prisma.follow.findUnique({
+            where: {
+              followerUserId_followingProfileId: {
+                followerUserId: userId,
+                followingProfileId: profile.id,
+              },
+            },
+            select: { id: true },
+          }),
+        )
+      : false;
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
@@ -59,6 +78,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ slug: 
           {profile.roles.length > 0 ? (
             <p className="mt-1 text-sm text-muted-foreground">{profile.roles.join(" · ")}</p>
           ) : null}
+          <p className="mt-1 text-sm text-muted-foreground">
+            {profile._count.followers}{" "}
+            {profile._count.followers === 1 ? "follower" : "followers"}
+          </p>
           {profile.location ? (
             <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
               <MapPin className="size-3.5" /> {profile.location}
@@ -74,7 +97,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ slug: 
             </div>
           ) : null}
 
-          <div className="mt-5">
+          <div className="mt-5 flex flex-wrap items-center gap-3">
             {isOwner ? (
               <Link href={`/p/${slug}/edit`} className={buttonVariants({ variant: "outline" })}>
                 Edit your page
@@ -85,6 +108,9 @@ export default async function ProfilePage({ params }: { params: Promise<{ slug: 
               <Link href={`/login?next=/p/${slug}`} className={buttonVariants()}>
                 Is this you? Claim this page — free
               </Link>
+            ) : null}
+            {!isOwner && claimed ? (
+              <FollowButton profileId={profile.id} following={following} />
             ) : null}
           </div>
         </div>
