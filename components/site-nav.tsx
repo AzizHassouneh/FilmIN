@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bell, Compass, Home, Search } from "lucide-react";
+import { Compass, Home, Search } from "lucide-react";
 import { auth } from "@/auth";
 import { buttonVariants } from "@/components/ui/button";
 
@@ -36,15 +36,12 @@ export async function SiteNav() {
             <Home className="size-4" />
             <span className="hidden md:inline">Home</span>
           </Link>
-          <Link href="/discover" className={ghost}>
+          <Link href="/search" className={ghost}>
             <Compass className="size-4" />
             <span className="hidden md:inline">Discover</span>
           </Link>
           {signedIn ? (
             <>
-              <Link href="/notifications" aria-label="Notifications" className={ghost}>
-                <Bell className="size-4" />
-              </Link>
               <Link href="/me" className={ghost}>
                 Me
               </Link>
