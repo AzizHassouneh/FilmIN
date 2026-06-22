@@ -1,0 +1,193 @@
+// FilmIN data model — see docs/Technical-Spec.md §B.
+// Catalog data is imported from the TMDB API (legal, attributed); IMDb is never scraped.
+// The platform is free forever — there is no payment/subscription/paywall model anywhere.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ── Auth (Auth.js / NextAuth v5 + @auth/prisma-adapter) ──────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  passwordHash  String? // bcrypt; null for OAuth-only users
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts Account[]
+  sessions Session[]
+
+  // The one professional profile this user has claimed (claim = set ownerUserId).
+  profile   ProfessionalProfile? @relation("ProfileOwner")
+  follows   Follow[]             @relation("Follower")
+  posts     Post[]
+  postLikes PostLike[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ── Professional identity ────────────────────────────────────────────────────
+
+model ProfessionalProfile {
+  id          String   @id @default(cuid())
+  displayName String
+  slug        String   @unique // url handle, e.g. "maya-okafor"
+  headshotUrl String?
+  bio         String?
+  roles       String[] // e.g. ["Actor", "Choreographer"]
+  location    String?
+  links       Json? // { reel, website, instagram, ... }
+  openToWork  Boolean  @default(false) // amber "open to work" signal
+
+  // Catalog linkage: a profile may originate from a TMDB person.
+  tmdbPersonId Int? @unique
+
+  // Claim model: null = unclaimed imported stub; set = owned by that user.
+  ownerUserId String? @unique
+  owner       User?   @relation("ProfileOwner", fields: [ownerUserId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  credits   Credit[]
+  followers Follow[] @relation("Following")
+
+  searchVector Unsupported("tsvector")?
+
+  @@index([tmdbPersonId])
+}
+
+// ── Catalog ──────────────────────────────────────────────────────────────────
+
+enum MediaType {
+  MOVIE
+  TV
+}
+
+model Title {
+  id        String    @id @default(cuid())
+  tmdbId    Int       @unique
+  mediaType MediaType
+  name      String
+  year      Int?
+  overview  String?
+  posterUrl String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  credits Credit[]
+  posts   Post[]
+
+  searchVector Unsupported("tsvector")?
+}
+
+enum CreditKind {
+  CAST
+  CREW
+}
+
+model Credit {
+  id        String     @id @default(cuid())
+  profileId String
+  titleId   String
+  kind      CreditKind
+  character String? // for CAST
+  department String? // for CREW
+  job       String? // for CREW
+  order     Int? // billing order
+
+  profile ProfessionalProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  title   Title               @relation(fields: [titleId], references: [id], onDelete: Cascade)
+  posts   Post[]
+
+  @@unique([profileId, titleId, kind, job, character])
+  @@index([profileId])
+  @@index([titleId])
+}
+
+// ── Social ───────────────────────────────────────────────────────────────────
+
+model Follow {
+  id                 String   @id @default(cuid())
+  followerUserId     String
+  followingProfileId String
+  createdAt          DateTime @default(now())
+
+  follower  User                @relation("Follower", fields: [followerUserId], references: [id], onDelete: Cascade)
+  following ProfessionalProfile @relation("Following", fields: [followingProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([followerUserId, followingProfileId])
+  @@index([followingProfileId])
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  authorId  String
+  body      String
+  titleId   String? // optional film-native context
+  creditId  String?
+  createdAt DateTime @default(now())
+
+  author User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  title  Title?  @relation(fields: [titleId], references: [id], onDelete: SetNull)
+  credit Credit? @relation(fields: [creditId], references: [id], onDelete: SetNull)
+  likes  PostLike[]
+
+  @@index([authorId])
+  @@index([createdAt])
+}
+
+model PostLike {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+}
