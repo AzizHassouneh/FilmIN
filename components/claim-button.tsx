@@ -7,7 +7,7 @@ import { claimProfile, type ProfileState } from "@/lib/profile-actions";
 export function ClaimButton({ slug }: { slug: string }) {
   const action = claimProfile.bind(null, slug);
   const [state, formAction, pending] = useActionState<ProfileState, FormData>(
-    () => action(),
+    action,
     undefined,
   );
 

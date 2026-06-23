@@ -44,7 +44,7 @@ export async function claimProfile(slug: string): Promise<ProfileState> {
     data: { ownerUserId: userId },
   });
   revalidatePath(`/p/${slug}`);
-  return { ok: true };
+  redirect(`/p/${slug}`);
 }
 
 const updateSchema = z.object({

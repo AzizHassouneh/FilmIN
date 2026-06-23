@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Compass, Home, Newspaper, Search } from "lucide-react";
 import { auth } from "@/auth";
 import { buttonVariants } from "@/components/ui/button";
+import { signOutAction } from "@/lib/auth-actions";
 
 // Top bar from the IA in docs/Design-Concept.md §6: wordmark · unified search ·
 // Home · Discover · Notifications · Me. The chrome adapts to whether the signed-in
@@ -49,6 +50,11 @@ export async function SiteNav() {
               <Link href="/me" className={ghost}>
                 Me
               </Link>
+              <form action={signOutAction}>
+                <button type="submit" className={ghost}>
+                  Sign out
+                </button>
+              </form>
             </>
           ) : (
             <>

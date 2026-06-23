@@ -8,17 +8,19 @@ import type { AuthState } from "@/lib/auth-actions";
 type AuthFormProps = {
   mode: "login" | "signup";
   action: (prev: AuthState, formData: FormData) => Promise<AuthState>;
+  next?: string;
 };
 
 const inputClass =
   "h-9 w-full rounded-lg border border-input bg-input/30 px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50";
 
-export function AuthForm({ mode, action }: AuthFormProps) {
+export function AuthForm({ mode, action, next }: AuthFormProps) {
   const [state, formAction, pending] = useActionState(action, undefined);
   const isSignup = mode === "signup";
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
+      {next ? <input type="hidden" name="next" value={next} /> : null}
       {isSignup ? (
         <label className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">Name</span>
