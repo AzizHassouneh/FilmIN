@@ -352,11 +352,11 @@ def build():
     section_rule(doc, "6. Capabilities & Feature Areas")
     add_body(doc, "Tag [MVP] = in the first thin vertical slice; [Later] = roadmap.", color=SLATE, size=8.5)
     caps = [
-        ("[MVP] Catalog & Discovery", "title pages (poster, year, synopsis), cast/crew, title search, trending rows."),
+        ("[MVP] Catalog & Discovery", "title pages (poster, year, synopsis), cast/crew, title search, trending rows, and a Discover browse page (role chips, trending, new releases, people to follow)."),
         ("[MVP] Professional Identity", "claim a page, profile (bio, roles, location, links), free headshot/photo upload. [Later] skills/tags, reel gallery."),
         ("[MVP] Credits & Filmography", "profile-title credits. [Later] add missing titles/credits (student/indie), correction requests."),
-        ("[MVP] Professional Network", "follow, worked-with (derived from shared titles). [Later] mutual connections, endorsements, 'open to work.'"),
-        ("[MVP] Feed & Posts", "activity feed, posts/updates, likes. [Later] comments."),
+        ("[MVP] Professional Network", "follow, worked-with (derived from shared titles), and 'people you may know' suggestions. [Later] mutual connections, endorsements, 'open to work.'"),
+        ("[MVP] Feed & Posts", "a personalized network feed on Home (posts + worked-with activity from your network, ranked by recency and proximity, with an extended-network tier), posts/updates, likes. [Later] comments."),
         ("[Later] Hiring & Discovery", "people search by role/location/skills, shortlists, direct contact (all free)."),
         ("[MVP] Fan Engagement", "follow talent. [Later] watchlists, ratings/reviews."),
         ("[Later] Critic & Editorial", "critic pages, reviews/articles."),
@@ -416,8 +416,9 @@ def build():
          "With no IMDb credits, creates a profile, adds his student films as titles + credits, "
          "and connects with classmates. Value: emerging talent gets an identity IMDb won't give."),
         ("[MVP]  S4 — Open to work (Sam → Noor).",
-         "Sam marks 'open to work' and posts a wrap announcement; Noor (following Sam) sees it "
-         "in her feed and connects. Value: the network creates work."),
+         "Sam marks 'open to work' and posts a wrap announcement; Noor (in Sam's network) sees it "
+         "on her Home feed and connects. Posts from friends-of-friends surface in an extended-network "
+         "tier, and 'people you may know' suggests collaborators. Value: the network creates work."),
         ("[MVP]  S5 — Fan lookup (Joe).",
          "Searches a film; the title page shows cast/crew linked to profiles; he follows an actor. "
          "Value: fast, credible catalog; fan→talent follow graph."),
@@ -429,7 +430,7 @@ def build():
         ("[Later]  S8 — Critic citations (Rae).",
          "Publishes reviews on a critic page; outlets cite FilmIN over IMDb."),
         ("[MVP]  S9 — Following talent + worked-with (Quinn).",
-         "Follows talent and explores who they've worked with via shared titles."),
+         "Browses people on Discover, follows talent, and explores who they've worked with via shared titles."),
     ]
     for head, body_text in scenarios:
         p = doc.add_paragraph()

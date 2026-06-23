@@ -290,11 +290,11 @@ def build():
     e.append(Paragraph("Tag <b>[MVP]</b> = in the first thin vertical slice; <b>[Later]</b> = roadmap.", small))
     e.append(Spacer(1,4))
     caps = [
-        "<b>A. Catalog &amp; Discovery</b> &mdash; [MVP] title pages (poster, year, synopsis), cast/crew, title search, trending rows.",
+        "<b>A. Catalog &amp; Discovery</b> &mdash; [MVP] title pages (poster, year, synopsis), cast/crew, title search, trending rows, and a <b>Discover</b> browse page (role chips, trending, new releases, people to follow).",
         "<b>B. Professional Identity</b> &mdash; [MVP] claim a page, profile (bio, roles, location, links), free headshot/photo upload; [Later] skills/tags, reel gallery.",
         "<b>C. Credits &amp; Filmography</b> &mdash; [MVP] profile&ndash;title credits; [Later] add missing titles/credits (student/indie), correction requests.",
-        "<b>D. Professional Network</b> &mdash; [MVP] follow, worked-with (derived from shared titles); [Later] mutual connections, endorsements, “open to work.”",
-        "<b>E. Feed &amp; Posts</b> &mdash; [MVP] activity feed, posts/updates, likes; [Later] comments.",
+        "<b>D. Professional Network</b> &mdash; [MVP] follow, worked-with (derived from shared titles), and <b>“people you may know”</b> suggestions; [Later] mutual connections, endorsements, “open to work.”",
+        "<b>E. Feed &amp; Posts</b> &mdash; [MVP] a <b>personalized network feed on Home</b> (posts + worked-with activity from your network, ranked by recency and proximity, with an <b>extended-network</b> tier), posts/updates, likes; [Later] comments.",
         "<b>F. Hiring &amp; Discovery</b> &mdash; [Later] people search by role/location/skills, shortlists, direct contact (all free).",
         "<b>G. Fan Engagement</b> &mdash; [MVP] follow talent; [Later] watchlists, ratings/reviews.",
         "<b>H. Critic &amp; Editorial</b> &mdash; [Later] critic pages, reviews/articles.",
@@ -333,15 +333,17 @@ def build():
         ("S3 [Later] — Building from zero (Theo).", "With no IMDb credits, creates a profile, adds his student films "
          "as titles + credits, and connects with classmates. <i>Value: emerging talent gets an identity IMDb won’t give.</i>"),
         ("S4 [MVP] — Open to work (Sam &rarr; Noor).", "Sam marks “open to work” and posts a wrap announcement; "
-         "Noor (following Sam) sees it in her feed and connects. <i>Value: the network creates work.</i>"),
+         "Noor (in Sam&rsquo;s network) sees it on her <b>Home</b> feed and connects. Posts from friends-of-friends "
+         "surface in an <b>extended-network</b> tier, and <b>“people you may know”</b> suggests collaborators. "
+         "<i>Value: the network creates work.</i>"),
         ("S5 [MVP] — Fan lookup (Joe).", "Searches a film; the title page shows cast/crew linked to profiles; he "
          "follows an actor. <i>Value: fast, credible catalog; fan&rarr;talent follow graph.</i>"),
         ("S6 [Later] — Fixing a credit (Priya).", "Finds a missing/mis-attributed credit on a title and requests a "
          "correction; the credit is fixed. <i>Value: accuracy owned by the people who did the work.</i>"),
         ("S7 [Later] — Assembling a crew (Alex).", "Uses people search and the worked-with graph to assemble a trusted crew."),
         ("S8 [Later] — Critic citations (Rae).", "Publishes reviews on a critic page; outlets cite FilmIN over IMDb."),
-        ("S9 [MVP] — Following talent + worked-with (Quinn).", "Follows talent and explores who they’ve worked with "
-         "via shared titles."),
+        ("S9 [MVP] — Following talent + worked-with (Quinn).", "Browses people on <b>Discover</b>, follows talent, and "
+         "explores who they’ve worked with via shared titles."),
     ]
     for head, txt in scen:
         e.append(Paragraph(head, S("scenh", parent=body, fontName="Helvetica-Bold", textColor=NAVY, spaceAfter=1)))
