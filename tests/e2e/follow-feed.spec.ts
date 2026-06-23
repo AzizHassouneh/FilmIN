@@ -1,8 +1,9 @@
 import { expect, test } from "@playwright/test";
 
 // S4 (cross-user): a director claims a page and posts; a follower sees it in
-// their feed and can like it. Uses two fresh accounts and a specific seeded
+// their Home feed and can like it. Uses two fresh accounts and a specific seeded
 // (unclaimed) profile so the runs don't collide on claim ownership.
+// Note: the personalized feed lives on Home (/); there is no separate /feed route.
 
 const unique = Date.now();
 const marker = `Wrapped principal photography — ${unique}`;
@@ -32,7 +33,7 @@ test("a follower sees a claimed pro's post in their feed and can like it", async
   await claim.click();
   await expect(dirPage.getByRole("link", { name: /edit your page/i })).toBeVisible();
 
-  await dirPage.goto("/feed");
+  await dirPage.goto("/");
   await dirPage.getByPlaceholder(/share an update/i).fill(marker);
   await dirPage.getByRole("button", { name: /^post$/i }).click();
   await expect(dirPage.getByText(marker)).toBeVisible();
@@ -45,7 +46,7 @@ test("a follower sees a claimed pro's post in their feed and can like it", async
   await fanPage.getByRole("button", { name: /^follow$/i }).click();
   await expect(fanPage.getByRole("button", { name: /following|unfollow/i })).toBeVisible();
 
-  await fanPage.goto("/feed");
+  await fanPage.goto("/");
   await expect(fanPage.getByText(marker)).toBeVisible();
 
   // Like the post.

@@ -51,8 +51,8 @@ For each scenario:
 ## Quick summary — what to test NOW vs LATER
 
 ### ✅ Test now (the built MVP)
-1. Sign up, sign in
-2. Browse the home page / trending titles
+1. Sign up, sign in, **sign out**
+2. **Discover** page — browse people by role, plus trending, new releases & people to follow
 3. Search for a movie or TV show → open its page → see cast & crew
 4. Search for a person → open their page → see their filmography
 5. Claim your own page ("This is me")
@@ -60,12 +60,14 @@ For each scenario:
 7. **Upload a headshot for free** (the headline feature)
 8. Toggle "Open to work" and see the amber badge
 9. Follow / unfollow someone
-10. Write a post; see it in your feed
-11. See posts from people you follow in your feed; like / unlike them
+10. Write a post from your **Home** feed; see it appear
+11. See posts from your network (people you follow + people you've worked with) on Home; like / unlike
+12. See **extended-network** posts (friends-of-friends) and **"People you may know"** suggestions
+13. The **cold-start** onboarding banner when your network is still small
 
 ### 🔜 Test later (not built yet)
-- Sign **out** button ⚠️ (see Scenario A4 — currently missing)
-- "Worked-with" collaborator graph on a profile
+- "Worked-with" collaborator list on a profile page (the graph already powers the feed & suggestions,
+  but a profile page doesn't yet show a dedicated "people they've worked with" section)
 - Adding your own student/indie titles & credits
 - Requesting a correction to a wrong credit
 - People search **filters** (by role, location, skill)
@@ -103,7 +105,8 @@ The table at the very end maps each persona to the scenarios that matter most to
 - **Who:** anyone (e.g. Maya the aspiring actor)
 - **Goal:** create an account.
 - **Steps:** Click **Join free** (top right) → enter name, email, password → submit.
-- **Expect:** you're signed in and land on the home page; the top bar now shows **Feed** and **Me**.
+- **Expect:** you're signed in and land on the home page — which is now your **personalized network
+  feed** — and the top bar shows **Home**, **Discover**, **Me**, and **Sign out**.
 - ☐ Result
 - **Notes:** ______________________________________________
 
@@ -123,14 +126,12 @@ The table at the very end maps each persona to the scenarios that matter most to
 - ☐ Result
 - **Notes (does the message make sense to a non-technical person?):** ____________________
 
-### A4 ⚠️ Sign out — *currently missing*
+### A4 ✅ Sign out
 - **Who:** anyone done with a session (important on a shared computer)
 - **Goal:** log out.
-- **Steps:** Look in the top bar for a **Sign out** / **Log out** option.
-- **Expect (eventually):** a way to sign out.
-- **Status note:** There is **no sign-out button yet** — this is a known gap to add. For now,
-  the only ways to "switch users" are to clear the browser cookies or use a private/incognito window.
-- ☐ Result (confirm it's indeed missing)
+- **Steps:** Click **Sign out** in the top bar.
+- **Expect:** you're signed out and the top bar returns to **Sign in** / **Join free**.
+- ☐ Result
 - **Notes:** ______________________________________________
 
 ### A5 🔜 Forgot password / password reset
@@ -144,10 +145,21 @@ The table at the very end maps each persona to the scenarios that matter most to
 ### B1 ✅ Home page & trending (Joe, the fan)
 - **Who:** Joe, general fan
 - **Goal:** see something to explore on arrival.
-- **Steps:** Go to the home page.
+- **Steps:** Go to the home page **while signed out**.
 - **Expect:** a welcome/hero area and a **"Trending now"** row of recent movie/TV posters.
+  *(Once you're signed in, Home becomes your personalized network feed instead — see Section D.)*
 - ☐ Result
 - **Notes (does it feel inviting? posters loading?):** ______________________________________
+
+### B1b ✅ Discover — browse landing (Joe / Quinn / Carmen)
+- **Who:** anyone exploring without a specific search in mind
+- **Goal:** have somewhere to browse, not just a blank search box.
+- **Steps:** Click **Discover** in the top bar (don't type a search).
+- **Expect:** a browse page with **role chips** (Actors, Directors, Writers, Producers,
+  Cinematographers, Editors, Composers, Choreographers), plus **Trending titles**, **New releases**,
+  and **People to follow**. Clicking a role chip lists people in that role.
+- ☐ Result
+- **Notes (is it a useful starting point? right rows?):** ___________________________________
 
 ### B2 ✅ Search for a title (Joe — "who was in that?")
 - **Who:** Joe
@@ -294,18 +306,18 @@ The table at the very end maps each persona to the scenarios that matter most to
 ### D3 ✅ Write a post (Sam announces a wrap) — *part of Scenario S4*
 - **Who:** Sam (or any claimed pro)
 - **Goal:** share an update.
-- **Steps:** Go to **Feed** → use the composer ("Share an update…") → type something → **Post**.
-- **Expect:** your post appears in the feed.
+- **Steps:** Go to **Home** → use the composer at the top ("Share an update…") → type something → **Post**.
+- **Expect:** your post appears in the Home feed.
 - ☐ Result
 - **Notes:** ______________________________________________
 
-### D4 ✅ See followed people's posts in your feed (Noor follows Sam) — *Scenario S4*
+### D4 ✅ See your network's posts on Home (Noor follows Sam) — *Scenario S4*
 - **Who:** Noor, following Sam
-- **Goal:** the feed shows people you follow.
+- **Goal:** your Home feed shows people you follow **and** people you've worked with.
 - **Steps:** As one user, follow a second user. As that second user, post something. Back as the
-  first user, open **Feed**. *(Use the two test accounts, or two browser windows — see A4 about
-  the missing sign-out.)*
-- **Expect:** the followed person's post shows up in your feed.
+  first user, open **Home**. *(Use the two test accounts and the **Sign out** button — A4 — to switch,
+  or two browser windows.)*
+- **Expect:** the followed person's post shows up in your Home feed. Newer and closer posts rank higher.
 - ☐ Result
 - **Notes:** ______________________________________________
 
@@ -316,16 +328,44 @@ The table at the very end maps each persona to the scenarios that matter most to
 - ☐ Result
 - **Notes:** ______________________________________________
 
+### D5b ✅ Extended-network posts (friends-of-friends)
+- **Who:** anyone with a few connections
+- **Goal:** the feed reaches one hop beyond your direct network.
+- **Steps:** On **Home**, look for posts tagged **"In your extended network."**
+- **Expect:** occasional posts from people your connections follow (degree 2), labelled as extended
+  network and ranked a bit lower than direct-network posts.
+- ☐ Result
+- **Notes:** ______________________________________________
+
+### D5c ✅ "People you may know" suggestions
+- **Who:** anyone building out their network
+- **Goal:** discover collaborators to follow.
+- **Steps:** On **Home**, check the right-hand **"People you may know"** rail.
+- **Expect:** suggested people (based on who you've worked with), each showing a top role and how
+  many credits you share, with a **Follow** button on claimed pages.
+- ☐ Result
+- **Notes:** ______________________________________________
+
+### D5d ✅ Cold-start onboarding (brand-new user)
+- **Who:** someone who just signed up with no network yet
+- **Goal:** Home shouldn't feel empty on day one.
+- **Steps:** Sign up fresh (or use an account that follows no one) and open **Home**.
+- **Expect:** a friendly onboarding banner ("Let's build your network") with CTAs to claim your page
+  and find collaborators, instead of a blank feed.
+- ☐ Result
+- **Notes:** ______________________________________________
+
 ### D6 🔜 Comment on a post
 - **Status:** Not built (likes only, no comments yet).
 
 ### D7 🔜 Posts attached to a specific title/credit
 - **Status:** Not built. Posts are plain text for now (can't tag "this is about *Film X*").
 
-### D8 🔜 "Worked-with" collaborator graph
+### D8 ⚠️ "Worked-with" collaborator graph
 - **Who:** Alex assembling a crew (S7), or Quinn exploring (S9)
-- **Status:** Not built **in the UI**. The data exists (shared credits), but a person's page
-  doesn't yet show "people they've worked with."
+- **Status:** The worked-with graph (shared credits) is **live** and now powers your Home feed and
+  the "People you may know" suggestions (D4, D5c). What's still missing is a **dedicated section on a
+  person's page** that lists "people they've worked with" — that view is not built yet.
 
 ### D9 🔜 Mutual connections & endorsements
 - **Status:** Not built. Following is one-way only today.

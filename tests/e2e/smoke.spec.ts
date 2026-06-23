@@ -40,8 +40,8 @@ test("a new user can browse the catalog, claim a page, and post", async ({ page 
     await expect(page.getByRole("link", { name: /edit your page/i })).toBeVisible();
   }
 
-  // S4: post to the feed.
-  await page.goto("/feed");
+  // S4: post to the feed (the feed now lives on Home).
+  await page.goto("/");
   const body = page.getByPlaceholder(/share an update/i);
   await expect(body).toBeVisible();
   const text = `Wrapped a shoot — ${unique}`;

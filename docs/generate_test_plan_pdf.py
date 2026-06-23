@@ -220,8 +220,8 @@ def build():
     e += section("Quick Summary — What to Test Now vs Later")
     e.append(Paragraph("Test <b>now</b> (the built MVP):", h3))
     e.append(bullets([
-        "Sign up and sign in",
-        "Browse the home page and trending titles",
+        "Sign up, sign in, and <b>sign out</b>",
+        "<b>Discover</b> page: browse people by role, plus trending, new releases &amp; people to follow",
         "Search for a movie or TV show; open its page and see cast &amp; crew",
         "Search for a person; open their page and see their filmography",
         "Claim your own page (\"This is me\")",
@@ -229,14 +229,17 @@ def build():
         "<b>Upload a headshot for free</b> (the headline feature)",
         "Toggle \"Open to work\" and see the amber badge appear",
         "Follow and unfollow someone",
-        "Write a post; see it in your feed",
-        "See posts from people you follow in your feed; like and unlike them",
+        "Write a post from your <b>Home</b> feed and see it appear",
+        "See posts from your network (people you follow + people you've worked with) on Home; "
+        "like and unlike them",
+        "See <b>extended-network</b> posts (friends-of-friends) and <b>\"People you may know\"</b> suggestions",
+        "The <b>cold-start</b> onboarding banner when your network is still small",
     ], gap=3))
     e.append(Spacer(1, 6))
     e.append(Paragraph("Test <b>later</b> (not built yet):", h3))
     e.append(bullets([
-        "Sign out (currently no sign-out button exists — flagged as a gap)",
-        "\"Worked-with\" collaborator list on a profile page",
+        "A \"Worked-with\" collaborator list <b>on a profile page</b> (the graph already powers the "
+        "Home feed &amp; suggestions, but a profile page has no dedicated section yet)",
         "Adding your own student/indie titles and credits",
         "Requesting a correction to a wrong or missing credit",
         "Searching people by role, location, or skill (filters)",
@@ -258,8 +261,9 @@ def build():
         steps="Click <b>Join free</b> in the top right corner|"
               "Enter your name, email address, and a password|"
               "Click the submit / sign-up button",
-        expect="You are now signed in and land on the home page. "
-               "The top bar now shows <b>Feed</b> and <b>Me</b> instead of sign-in buttons.",
+        expect="You are now signed in and land on the home page, which is your "
+               "<b>personalized network feed</b>. The top bar now shows <b>Home</b>, "
+               "<b>Discover</b>, <b>Me</b>, and <b>Sign out</b> instead of sign-in buttons.",
     ))
 
     e.append(scenario_block(
@@ -285,15 +289,12 @@ def build():
     ))
 
     e.append(scenario_block(
-        "A4", "gap",
+        "A4", "ready",
         who="Anyone who wants to log out (important on a shared computer)",
         goal="Sign out of the app.",
-        steps="Look in the top navigation bar for a Sign out or Log out option|"
-              "Look in any menu or dropdown that appears when you click your name",
-        expect="There should be a way to sign out.",
-        note_text="There is currently NO sign-out button anywhere in the app. "
-                  "This is a known gap. For now, the only workaround is to use an "
-                  "incognito/private browser window or clear cookies.",
+        steps="Click <b>Sign out</b> in the top navigation bar",
+        expect="You are signed out and the top bar returns to "
+               "<b>Sign in</b> / <b>Join free</b>.",
     ))
 
     e.append(scenario_block(
@@ -311,13 +312,29 @@ def build():
 
     e.append(scenario_block(
         "B1", "ready",
-        who="Joe, a general fan visiting for the first time",
+        who="Joe, a general fan visiting for the first time (while signed out)",
         goal="See something appealing on arrival without having to search.",
-        steps="Go to the home page (http://localhost:3000)|"
+        steps="Go to the home page (http://localhost:3000) while signed out|"
               "Look at the layout, any images, and any title rows",
         expect="A welcome/hero area appears, plus a <b>Trending now</b> row showing "
                "recent movie and TV show posters.",
-        note_text="Does it feel inviting? Are the posters loading correctly?",
+        note_text="Does it feel inviting? Are the posters loading correctly? "
+                  "Note: once signed in, the home page becomes your personalized feed "
+                  "(see Section D) — this marketing landing is the signed-out view.",
+    ))
+
+    e.append(scenario_block(
+        "B1b", "ready",
+        who="Joe or a film pro exploring who's on FilmIN",
+        goal="Browse people and titles on the Discover page (no search query needed).",
+        steps="Click <b>Discover</b> in the top bar (or go to /search)|"
+              "Look at the role chips, trending titles, new releases, and people to follow|"
+              "Click a role chip such as <b>Director</b> or <b>Actor</b>",
+        expect="Discover shows a real browse surface: role chips, a trending row, "
+               "new releases, and people to follow. Clicking a role chip lists people "
+               "in that role (it filters via <b>?role=</b>).",
+        note_text="Discover doubles as search: typing a name (<b>?q=</b>) still returns "
+                  "people and titles.",
     ))
 
     e.append(scenario_block(
@@ -521,37 +538,74 @@ def build():
     e.append(scenario_block(
         "D3", "ready",
         who="Sam (or any claimed professional)",
-        goal="Share a professional update with your followers.",
-        steps="Click <b>Feed</b> in the top navigation|"
+        goal="Share a professional update with your network.",
+        steps="Go to <b>Home</b> (the home page is your feed when signed in)|"
               "Find the composer box at the top (it says something like 'Share an update...')|"
               "Type a short post|"
               "Click <b>Post</b>",
         expect="Your post appears in the feed immediately.",
+        note_text="The post composer lives on Home now — there is no separate Feed page.",
     ))
 
     e.append(scenario_block(
         "D4", "ready",
-        who="Noor, following Sam",
-        goal="See posts from people you follow in your feed.",
-        steps="Using one account, follow a second user's profile|"
-              "Using the second account (open a separate browser window or use "
-              "alice@filmin.test and bob@filmin.test), write a post|"
-              "Switch back to the first account and open <b>Feed</b>",
-        expect="The second user's post appears in the first user's feed.",
-        note_text="Because there is no sign-out button yet, use two separate browser "
-                  "windows or one regular and one incognito window to be signed in as "
-                  "both accounts at once.",
+        who="Noor, in Sam's network",
+        goal="See your network's posts on Home.",
+        steps="Using one account, follow a second user's profile (or use two people "
+              "who share a film credit — the feed includes people you've <b>worked with</b>, "
+              "not just people you follow)|"
+              "Using the second account, write a post|"
+              "Switch back to the first account and open <b>Home</b>",
+        expect="The second user's post appears in the first user's Home feed, ranked by "
+               "recency and how close they are in your network.",
+        note_text="To switch accounts, use <b>Sign out</b> and sign back in as the other "
+                  "user — or use two separate browser windows to stay signed in as both.",
     ))
 
     e.append(scenario_block(
         "D5", "ready",
         who="Anyone reading the feed",
         goal="Like and unlike a post.",
-        steps="In the feed, find a post|"
+        steps="On your Home feed, find a post|"
               "Click the heart icon on the post|"
               "Click it again to undo",
         expect="The heart fills in when liked and empties when unliked. "
                "The like count changes accordingly.",
+    ))
+
+    e.append(scenario_block(
+        "D5b", "ready",
+        who="A user with a few connections (a friend-of-a-friend network)",
+        goal="See posts from your extended network, clearly labelled.",
+        steps="Build a small chain: you follow A, and A follows B (whom you do not follow)|"
+              "Have B write a post|"
+              "Open your <b>Home</b> feed",
+        expect="B's post can appear in your feed with an <b>'In your extended network'</b> "
+               "badge, ranked below closer (direct-network) posts.",
+        note_text="Direct network = people you follow or have worked with; extended network "
+                  "= friends-of-friends.",
+    ))
+
+    e.append(scenario_block(
+        "D5c", "ready",
+        who="Anyone building out their network",
+        goal="Discover relevant people via 'People you may know'.",
+        steps="Open your <b>Home</b> feed|"
+              "Look at the suggestions rail / section",
+        expect="A <b>'People you may know'</b> list suggests collaborators connected to "
+               "your network (e.g. people who share credits with those you follow). "
+               "Each has a Follow button.",
+    ))
+
+    e.append(scenario_block(
+        "D5d", "ready",
+        who="A brand-new user with almost no network yet",
+        goal="Avoid an empty, discouraging feed on day one.",
+        steps="Sign up as a fresh user and follow fewer than five people|"
+              "Open your <b>Home</b> feed",
+        expect="Instead of feeling empty, the feed shows a friendly <b>cold-start</b> "
+               "onboarding banner (e.g. 'Let's build your network') with prompts to "
+               "claim your page and follow people.",
     ))
 
     e.append(scenario_block(
@@ -571,10 +625,12 @@ def build():
     ))
 
     e.append(scenario_block(
-        "D8", "later",
+        "D8", "gap",
         who="Alex assembling a crew, or Quinn exploring collaborations",
         goal="See a list of people a person has worked with on their profile.",
-        steps="(Not built yet — the data exists but is not shown on the profile page)",
+        steps="(The worked-with graph is live — it already powers your Home feed and "
+              "'People you may know' suggestions — but it is not yet shown as a section "
+              "on the profile page itself)",
         expect="A 'Worked with' section appears on profile pages, "
                "showing people who share film credits.",
     ))

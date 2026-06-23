@@ -13,7 +13,7 @@
 
 | Layer | Choice | Notes |
 |---|---|---|
-| Framework | **Next.js 15** (App Router, TypeScript, React Server Components) | Server-first; SEO for fan traffic (SUBSET ONE). |
+| Framework | **Next.js 16** (App Router, TypeScript, React Server Components) | Server-first; SEO for fan traffic (SUBSET ONE). `params`/`searchParams` are async. |
 | Database | **PostgreSQL** + **Prisma ORM** | Default host **Neon** (serverless) since Docker is not installed locally. Local alt: `brew install postgresql@16`. |
 | Auth | **Auth.js (NextAuth v5)** | Email/credentials to start; OAuth later. |
 | UI | **Tailwind CSS** + **shadcn/ui** + **lucide** icons | Clean, accessible, mobile-friendly. |
@@ -149,10 +149,45 @@ model PostLike {
   (bio, roles, location, links); **free headshot/photo upload** via the storage abstraction.
 
 ### P4 — Social (Pillar C)
-- Follow / unfollow; **activity feed**; create **post**; **like**.
+- Follow / unfollow; create **post**; **like**.
+- **Personalized network feed on Home** (`/`): for signed-in users the home page *is* the feed
+  (there is no separate `/feed` route — `/feed` 301-redirects to `/`). It interleaves posts and
+  worked-with activity from the viewer's network, with a profile rail, post composer,
+  "people you may know" suggestions, and a trending rail. Signed-out `/` stays the marketing landing.
+- **Discover** (`/search`): a real browse surface — role chips, trending, new releases, and
+  people to follow — that also serves name search (`?q=`) and role filtering (`?role=`).
 
 ### P5 — Seed, polish, verify
 - Seed a curated set of TMDB titles; empty/loading/error states; Vitest + Playwright; README.
+
+---
+
+## 4a. Social Graph & Feed Ranking
+
+The "worked-with" graph (shared-credit edges) is the social spine; the Home feed is built on top of it.
+
+**Degree model** (`lib/network.ts`)
+- **Degree 1** — the viewer's direct network: everyone they **Follow** ∪ everyone they've
+  **worked with** (co-credited on a shared `Title`).
+- **Degree 2** — friends-of-friends: profiles that the viewer's degree-1 connections follow,
+  excluding degree 1.
+- **Degree 3** — soft "people you may know" **suggestions only** (co-credits with the degree-1
+  network, ranked by shared-credit count); never injected into the post stream.
+- Caps keep graph derivation bounded: `WORKED_WITH_CAP = 500`, `DEGREE2_FOLLOW_CAP = 1000`,
+  `SUGGESTION_SCAN_CAP = 2000`.
+
+**Feed ranking** (`lib/feed.ts`) — a deliberately simple, transparent formula:
+```
+score = recency × proximity × type
+```
+- **Recency** — exponential decay with a **3-day half-life**: `recencyScore = 0.5 ^ (ageDays / 3)`.
+- **Proximity** — degree-1 = `1.0`, degree-2 = `0.5`.
+- **Type** — posts = `1.0`, worked-with activity = `0.7`.
+- **Posts** come from degree-1 and degree-2 authors; **activity** items (e.g. "N people in your
+  network are credited on *Title*") come from degree-1 only. Since `Credit` has no timestamp,
+  activity recency uses the parent `Title.createdAt` as a proxy.
+- **Cold start** — when the viewer's degree-1 network is small (`< 5` profiles), the feed surfaces
+  an onboarding banner with claim/follow CTAs instead of feeling empty.
 
 ---
 
@@ -170,10 +205,13 @@ model PostLike {
 - This Technical-Spec.md present in repo. ✔
 
 **MVP (after build phases)** — runnable locally, demonstrating:
-1. Home shows trending titles.
+1. Signed-out Home shows the marketing landing + trending; **Discover** (`/search`) browses by role,
+   trending, new releases, and people to follow.
 2. Search a film → title page with cast/crew linked to profiles.
 3. Sign up → **claim** a page → edit → **upload a headshot** that persists/renders *(Scenario S1)*.
-4. Second user follows first → first posts → appears in follower **feed** + **like** *(Scenario S4)*.
-5. Playwright smoke covers search → title → claim → upload → follow → feed.
+4. Second user follows first → first posts → appears on the follower's **Home feed** + **like**
+   *(Scenario S4)*; degree-2 posts show an "extended network" badge; "people you may know" suggests
+   degree-3 collaborators.
+5. Playwright smoke covers search → title → claim → upload → follow → Home feed.
 6. Vitest covers TMDB-mapping + credit-derivation utilities.
 7. TMDB attribution visible; **no IMDb scraping anywhere**.
