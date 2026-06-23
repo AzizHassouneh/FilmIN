@@ -105,7 +105,7 @@ async function NetworkHome({ userId }: { userId: string }) {
 
         <div className="mt-4">
           {feed.items.length > 0 ? (
-            <FeedList items={feed.items} userId={userId} />
+            <FeedList items={feed.items} />
           ) : (
             <p className="rounded-lg border border-border bg-card p-6 text-center text-sm text-muted-foreground">
               Your feed is quiet for now. Follow people from their pages — or claim your own page —
