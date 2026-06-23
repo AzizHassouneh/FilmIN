@@ -13,6 +13,7 @@
     "db:studio": "prisma studio",
     "db:seed": "tsx scripts/import-tmdb.ts",
     "db:seed:local": "tsx scripts/seed-local.ts",
+    "db:seed:tmdb": "tsx scripts/seed-tmdb.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test"

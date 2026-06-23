@@ -75,11 +75,19 @@ async function tmdb<T>(path: string, params: Record<string, string> = {}): Promi
   url.searchParams.set("api_key", apiKey());
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
 
-  const res = await fetch(url, { headers: { accept: "application/json" } });
-  if (!res.ok) {
-    throw new Error(`TMDB ${path} failed: ${res.status} ${res.statusText}`);
+  // Retry on rate-limit (429) and transient 5xx, honoring Retry-After.
+  for (let attempt = 0; ; attempt++) {
+    const res = await fetch(url, { headers: { accept: "application/json" } });
+    if (res.ok) return res.json() as Promise<T>;
+    const retryable = res.status === 429 || res.status >= 500;
+    if (!retryable || attempt >= 4) {
+      throw new Error(`TMDB ${path} failed: ${res.status} ${res.statusText}`);
+    }
+    const retryAfter = Number(res.headers.get("retry-after"));
+    const waitMs =
+      Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter * 1000 : 500 * 2 ** attempt;
+    await new Promise((r) => setTimeout(r, waitMs));
   }
-  return res.json() as Promise<T>;
 }
 
 /** Build a full poster/headshot URL from a TMDB path, or null. */
@@ -117,4 +125,29 @@ export function searchMulti(query: string, page = 1) {
 
 export function getTrending(window: "day" | "week" = "week") {
   return tmdb<{ results: TmdbSearchItem[] }>(`/trending/all/${window}`);
+}
+
+/**
+ * Discover the most popular movies released in a given year (paginated, 20/page).
+ * Used by the backfill seed to import notable recent titles into our own DB.
+ */
+export function discoverMovies(year: number, page = 1) {
+  return tmdb<{ results: TmdbMovie[]; page: number; total_pages: number }>("/discover/movie", {
+    sort_by: "popularity.desc",
+    primary_release_year: String(year),
+    include_adult: "false",
+    "vote_count.gte": "5",
+    page: String(page),
+  });
+}
+
+/** Discover the most popular TV shows first airing in a given year (20/page). */
+export function discoverTv(year: number, page = 1) {
+  return tmdb<{ results: TmdbTv[]; page: number; total_pages: number }>("/discover/tv", {
+    sort_by: "popularity.desc",
+    first_air_date_year: String(year),
+    include_adult: "false",
+    "vote_count.gte": "5",
+    page: String(page),
+  });
 }
