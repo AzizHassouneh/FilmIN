@@ -12,6 +12,7 @@
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "db:seed": "tsx scripts/import-tmdb.ts",
+    "db:seed:local": "tsx scripts/seed-local.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test"
